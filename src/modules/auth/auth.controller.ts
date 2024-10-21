@@ -6,6 +6,7 @@ import {
   HttpCode,
   Get,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from '../user/dto/login-user.dto';
@@ -27,6 +28,8 @@ import {
   SignInDocsAPI,
   SignUpDocsAPI,
 } from './decorators/index.decorator';
+import { CloudFlareTurnStileCapchaGuard } from 'src/guards/cloud-flare-turnstile-capcha.guard';
+import { CloudFlareTurnStileCapChaApiDocs } from '../cloud-flare-turnstile/decorators/index.decorator';
 
 @ApiTags('Authentication')
 @Controller('auths')
@@ -45,7 +48,9 @@ export class AuthController {
   }
 
   @SignInDocsAPI()
+  @CloudFlareTurnStileCapChaApiDocs()
   @Logging('Đăng nhập', ActionLogEnum.LOGIN, SubjectEnum.USER)
+  @UseGuards(CloudFlareTurnStileCapchaGuard)
   @HttpCode(200)
   @Post('/sign-in')
   signIn(
