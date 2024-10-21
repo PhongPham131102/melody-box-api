@@ -1,5 +1,15 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  getSchemaPath,
+} from '@nestjs/swagger';
+import { StatusResponse } from 'src/common/StatusResponse';
+import {
+  TokenCloudflareIsRequireError,
+  TokenCloudflareNotValidError,
+} from 'src/modules/cloud-flare-turnstile/dto/error-response.dto';
 import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
 import { LoginUserDto } from 'src/modules/user/dto/login-user.dto';
 
@@ -129,6 +139,73 @@ export function SignInDocsAPI() {
               message: {
                 type: 'string',
                 example: 'Invalid username or password',
+              },
+            },
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 400,
+      description: 'Multiple possible errors for status 400',
+      content: {
+        'application/json': {
+          schema: {
+            oneOf: [
+              // Thêm cả hai trường hợp từ CloudFlare và SignIn vào đây
+              {
+                type: 'object',
+                properties: {
+                  status: { type: 'number', example: 9 },
+                  message: {
+                    type: 'string',
+                    example: 'User Name Or Password Is Not Correct',
+                  },
+                },
+              },
+              {
+                discriminator: {
+                  propertyName: 'errorType',
+                  mapping: {
+                    TokenCloudflareIsRequire: getSchemaPath(
+                      TokenCloudflareIsRequireError,
+                    ),
+                    TokenCloudflareNotValid: getSchemaPath(
+                      TokenCloudflareNotValidError,
+                    ),
+                  },
+                },
+                oneOf: [
+                  { $ref: getSchemaPath(TokenCloudflareIsRequireError) },
+                  { $ref: getSchemaPath(TokenCloudflareNotValidError) },
+                ],
+              },
+            ],
+          },
+          examples: {
+            InvalidCredentials: {
+              summary: 'User Name Or Password Is Not Correct',
+              value: {
+                status: 9,
+                message: 'User Name Or Password Is Not Correct',
+              },
+            },
+            TokenCloudflareIsRequire: {
+              summary: 'Token Cloud Flare TurnStile is required.',
+              value: {
+                status: StatusResponse.TOKEN_CLOUDFLARE_IS_REQUIRE,
+                message:
+                  'Token Cloud Flare TurnStile Is Required Please Check Payload',
+                statusCode: 400,
+              },
+            },
+            TokenCloudflareNotValid: {
+              summary: 'Token Cloud Flare TurnStile is invalid or expired.',
+              value: {
+                status: StatusResponse.TOKEN_CLOUDFLARE_NOT_VALID,
+                message:
+                  'Token Cloud Flare TurnStile May Be Expire Or Not Valid Please Reload Page and Try Again!',
+                statusCode: 400,
               },
             },
           },
