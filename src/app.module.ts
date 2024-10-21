@@ -14,6 +14,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { Mp3ApiModule } from './modules/mp3-api/mp3-api.module';
 import { YoutubeApiModule } from './modules/youtube-api/youtube-api.module';
 import { DatabaseModule } from './database/database.module';
+import { CloudFlareTurnstileModule } from './modules/cloud-flare-turnstile/cloud-flare-turnstile.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { DatabaseModule } from './database/database.module';
     AuthModule,
     Mp3ApiModule,
     YoutubeApiModule,
+    CloudFlareTurnstileModule,
   ],
   controllers: [],
   providers: [
