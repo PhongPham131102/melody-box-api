@@ -61,7 +61,7 @@ async function bootstrap() {
   });
   setupSwagger(app);
   //khai báo port cho ứng dụng
-  const port = process.env.PORT || 5202;
+  const port = process.env.PORT || 5555;
   await app.listen(port).then(() => {
     logger.verbose(`System running on port ${port}`);
   });
